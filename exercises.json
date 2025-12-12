@@ -1,0 +1,54 @@
+{
+  "yuruyus_yavas": { "isim": "Yürüyüş (Yavaş - Gezinti)", "met": 2.0 },
+  "yuruyus_orta": { "isim": "Yürüyüş (Orta - Köpek Gezdirme)", "met": 3.0 },
+  "yuruyus_tempolu": { "isim": "Yürüyüş (Tempolu - Spor Amaçlı)", "met": 4.0 },
+  "yuruyus_yokus": { "isim": "Yürüyüş (Yokuş Yukarı / Doğa)", "met": 6.0 },
+
+  "kosu_jogging": { "isim": "Koşu (Jogging - Hafif)", "met": 7.0 },
+  "kosu_orta": { "isim": "Koşu (Orta Hız - 8-9 km/s)", "met": 8.0 },
+  "kosu_hizli": { "isim": "Koşu (Hızlı - 12 km/s üzeri)", "met": 11.5 },
+  "kosu_depar": { "isim": "Koşu (Depar / Sprint)", "met": 15.0 },
+
+  "bisiklet_hafif": { "isim": "Bisiklet (Hafif / Şehir içi)", "met": 4.0 },
+  "bisiklet_orta": { "isim": "Bisiklet (Orta Tempo)", "met": 8.0 },
+  "bisiklet_hizli": { "isim": "Bisiklet (Hızlı / Yarış)", "met": 10.0 },
+  "bisiklet_dag": { "isim": "Dağ Bisikleti", "met": 8.5 },
+  "kondisyon_bisikleti": { "isim": "Kondisyon Bisikleti (Ev)", "met": 7.0 },
+
+  "yuzme_hafif": { "isim": "Yüzme (Hafif / Serbest)", "met": 6.0 },
+  "yuzme_tempolu": { "isim": "Yüzme (Tempolu / Kulvar)", "met": 10.0 },
+  "yuzme_sirtustu": { "isim": "Yüzme (Sırtüstü)", "met": 7.0 },
+  "yuzme_kelebek": { "isim": "Yüzme (Kelebek)", "met": 13.8 },
+
+  "fitness_hafif": { "isim": "Fitness / Ağırlık (Hafif)", "met": 3.0 },
+  "fitness_agir": { "isim": "Fitness / Ağırlık (Ağır)", "met": 6.0 },
+  "calisthenics": { "isim": "Vücut Ağırlığı (Şınav/Mekik)", "met": 4.0 },
+  "pilates": { "isim": "Pilates", "met": 3.0 },
+  "yoga": { "isim": "Yoga", "met": 2.5 },
+  "crossfit": { "isim": "Crossfit", "met": 8.0 },
+
+  "futbol_mac": { "isim": "Futbol (Maç)", "met": 10.0 },
+  "futbol_antrenman": { "isim": "Futbol (Halı Saha / Eğlence)", "met": 7.0 },
+  "basketbol_mac": { "isim": "Basketbol (Maç)", "met": 8.0 },
+  "basketbol_sut": { "isim": "Basketbol (Şut Atma)", "met": 4.5 },
+  "voleybol_mac": { "isim": "Voleybol (Maç)", "met": 8.0 },
+  "voleybol_plaj": { "isim": "Plaj Voleybolu", "met": 8.0 },
+  "tenis_tek": { "isim": "Tenis (Tekler)", "met": 8.0 },
+  "tenis_cift": { "isim": "Tenis (Çiftler)", "met": 6.0 },
+  "masa_tenisi": { "isim": "Masa Tenisi", "met": 4.0 },
+
+  "boks_antrenman": { "isim": "Boks (Kum Torbası)", "met": 6.0 },
+  "boks_mac": { "isim": "Boks (Ring / Maç)", "met": 12.0 },
+  "kick_boks": { "isim": "Kick Boks", "met": 10.0 },
+
+  "dans_disko": { "isim": "Dans (Disko / Parti)", "met": 5.0 },
+  "dans_zumba": { "isim": "Zumba", "met": 6.5 },
+  "dans_salsa": { "isim": "Salsa / Tango", "met": 4.5 },
+
+  "ip_atlama_yavas": { "isim": "İp Atlama (Yavaş)", "met": 8.0 },
+  "ip_atlama_hizli": { "isim": "İp Atlama (Hızlı)", "met": 12.0 },
+  "eliptik": { "isim": "Eliptik Bisiklet", "met": 5.0 },
+  "kurek": { "isim": "Kürek Çekme (Makine)", "met": 7.0 },
+  "temizlik_agir": { "isim": "Ev Temizliği (Ağır)", "met": 3.5 },
+  "bahce_isleri": { "isim": "Bahçe İşleri", "met": 4.0 }
+}

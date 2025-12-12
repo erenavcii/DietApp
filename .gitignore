@@ -1,0 +1,21 @@
+# --- Python Backend ---
+__pycache__/
+*.pyc
+venv/
+.venv/
+env/
+.env
+
+# --- Güvenlik (Çok Önemli) ---
+firebase_key.json
+*.pem
+
+# --- React Native Frontend ---
+node_modules/
+.expo/
+dist/
+web-build/
+.idea/
+.vscode/
+*.log
+.DS_Store
