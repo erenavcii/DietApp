@@ -6,7 +6,7 @@ venv/
 env/
 .env
 
-# --- Güvenlik (Çok Önemli) ---
+# --- Güvenlik  ---
 firebase_key.json
 *.pem
 
@@ -19,3 +19,11 @@ web-build/
 .vscode/
 *.log
 .DS_Store
+
+# --- AI MODELI VE RESIMLER 
+dataset/
+yeni_model/
+*.pt
+*.bin
+*.h5
+*.safetensors

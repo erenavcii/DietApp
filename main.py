@@ -1,5 +1,6 @@
-from fastapi import FastAPI, UploadFile, File
-from transformers import AutoImageProcessor, AutoModelForImageClassification
+from fastapi import FastAPI, UploadFile, File, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from transformers import ViTImageProcessor, ViTForImageClassification
 from PIL import Image
 import torch
 import io
@@ -7,27 +8,44 @@ import json
 import firebase_admin
 from firebase_admin import credentials, firestore
 from datetime import datetime, date, timedelta
-from pydantic import BaseModel 
+from pydantic import BaseModel
 
 app = FastAPI()
 
-# --- 1. FIREBASE BAĞLANTISI ---
+# --- 1. CORS AYARLARI (TELEFON BAĞLANTISI İÇİN ŞART) ---
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Tüm kaynaklara izin ver
+    allow_credentials=True,
+    allow_methods=["*"],  # Tüm metodlara izin ver (GET, POST, DELETE...)
+    allow_headers=["*"],
+)
+
+# --- 2. FIREBASE BAĞLANTISI ---
 try:
     if not firebase_admin._apps:
         cred = credentials.Certificate("firebase_key.json")
         firebase_admin.initialize_app(cred)
-        print("Firebase Bağlandı ☁️")
+        print("☁️ Firebase Bağlandı")
 except Exception as e:
-    print(f"Hata: {e}")
+    print(f"❌ Firebase Hatası: {e}")
 
 db = firestore.client()
 
-# --- 2. AI MODELİ ---
-MODEL_NAME = "nateraw/food"
-print("Model Yükleniyor...")
-processor = AutoImageProcessor.from_pretrained(MODEL_NAME)
-model = AutoModelForImageClassification.from_pretrained(MODEL_NAME)
-print("Model Hazır 🤖")
+# --- 3. AI MODELİ (21 SINIFLI YENİ BEYİN) ---
+MODEL_PATH = "./yeni_model"  # Eğittiğimiz model klasörü
+
+print("🧠 Model yükleniyor...")
+try:
+    # AutoModel yerine eğitimde kullandığımız ViT sınıflarını kullanıyoruz
+    processor = ViTImageProcessor.from_pretrained(MODEL_PATH)
+    model = ViTForImageClassification.from_pretrained(MODEL_PATH)
+    print("✅ Model Başarıyla Yüklendi! (21 Yemek Tanınıyor)")
+except Exception as e:
+    print(f"❌ HATA: Model yüklenemedi! {e}")
+    print("⚠️ YEDEK: Google'ın temel modeli yükleniyor...")
+    processor = ViTImageProcessor.from_pretrained("google/vit-base-patch16-224-in21k")
+    model = ViTForImageClassification.from_pretrained("google/vit-base-patch16-224-in21k")
 
 # Veritabanlarını Oku
 try:
@@ -42,7 +60,7 @@ try:
 except:
     exercise_database = {}
 
-# --- 3. MODELLER (GÜNCELLENDİ) ---
+# --- 4. DATA MODELLERİ (Pydantic) ---
 class YemekKayit(BaseModel):
     yemek_adi: str
     kalori: int
@@ -51,8 +69,8 @@ class YemekKayit(BaseModel):
     yag: int = 0
     porsiyon: str
     kullanici_id: str
-    tarih_str: str = None  # YENİ: Telefondan gelen tarih (YYYY-MM-DD)
-    ogun: str = None       # YENİ: Kahvaltı, Öğle Yemeği...
+    tarih_str: str = None
+    ogun: str = None
 
 class SuKayit(BaseModel):
     miktar: int
@@ -64,20 +82,51 @@ class SporKayit(BaseModel):
     kullanici_id: str
     tarih_str: str = None
 
-# --- 4. ENDPOINTLER ---
+# --- 5. ENDPOINTLER ---
 
 @app.get("/")
 def home():
-    return {"durum": "Aktif 🚀"}
+    return {"durum": "Sunucu Aktif 🚀", "model": "21 Sınıflı ViT"}
 
-# --- KAYDETME (AKILLI VERSİYON) ---
+# --- YAPAY ZEKA TAHMİNİ ---
+@app.post("/predict")
+async def predict(file: UploadFile = File(...)):
+    try:
+        # Resmi oku ve RGB'ye çevir (PNG transparanlığı hatasını önler)
+        contents = await file.read()
+        img = Image.open(io.BytesIO(contents)).convert("RGB")
+        
+        # Modele ver
+        inputs = processor(images=img, return_tensors="pt")
+        
+        with torch.no_grad():
+            outputs = model(**inputs)
+            # En yüksek olasılıklı sınıfı bul
+            predicted_class_idx = outputs.logits.argmax(-1).item()
+            label = model.config.id2label[predicted_class_idx]
+        
+        print(f"📸 Tahmin Edilen: {label}")
+
+        # Etiketi veritabanından bul
+        # Eğer foods.json'da yoksa varsayılan boş veri dön
+        info = food_database.get(label)
+        
+        if not info:
+            # Veritabanında yoksa sadece ismini döndür
+            info = {"isim": label.replace("_", " ").title(), "kalori": 0, "birim": "?", "protein":0, "karbonhidrat":0, "yag":0}
+
+        return {"success": True, "prediction": label, "data": info}
+        
+    except Exception as e:
+        print(f"Hata: {e}")
+        return {"success": False, "error": str(e)}
+
+# --- YEMEK KAYIT ---
 @app.post("/kaydet")
 def save(k: YemekKayit):
     try:
-        # Tarih Mantığı: Telefondan geldiyse onu kullan, yoksa şimdiki zaman
         if k.tarih_str:
             kayit_tarihi = datetime.strptime(k.tarih_str, "%Y-%m-%d")
-            # Saati şu anki saat yapalım ki sıralama bozulmasın
             simdi = datetime.now()
             kayit_tarihi = kayit_tarihi.replace(hour=simdi.hour, minute=simdi.minute)
         else:
@@ -87,16 +136,15 @@ def save(k: YemekKayit):
             **k.dict(), 
             "tarih": kayit_tarihi,
             "tur": "yemek",
-            "ogun": k.ogun if k.ogun else "Atıştırmalık" # Öğün seçilmediyse varsayılan
+            "ogun": k.ogun if k.ogun else "Atıştırmalık"
         }
-        # Pydantic alanlarını temizle
         if "tarih_str" in veri: del veri["tarih_str"]
 
         db.collection("yemek_gunlugu").add(veri)
         return {"success": True}
     except Exception as e: return {"success": False, "error": str(e)}
 
-# --- SPOR KAYDET ---
+# --- SPOR KAYIT ---
 @app.post("/spor-yap")
 def add_exercise(kayit: SporKayit):
     try:
@@ -126,7 +174,7 @@ def add_exercise(kayit: SporKayit):
         return {"success": True}
     except Exception as e: return {"success": False, "error": str(e)}
 
-# --- GÜNLÜK GETİR ---
+# --- GÜNLÜK LİSTELEME ---
 @app.get("/gunluk/{uid}")
 def get_logs(uid: str, tarih: str = None):
     if not tarih: tarih = date.today().strftime("%Y-%m-%d")
@@ -155,7 +203,7 @@ def get_logs(uid: str, tarih: str = None):
         return {"success": True, "logs": liste, "total_calories": toplam["kalori"], "total_burnt": toplam["yakilan"], "total_protein": toplam["protein"], "total_carb": toplam["karbonhidrat"], "total_fat": toplam["yag"]}
     except Exception as e: return {"success": False, "error": str(e)}
 
-# --- DİĞERLERİ (AYNI) ---
+# --- ARAMA İŞLEMLERİ ---
 @app.get("/arama/{terim}")
 def search_food(terim: str):
     try:
@@ -176,18 +224,7 @@ def search_exercise(terim: str):
         return {"success": True, "results": res}
     except Exception as e: return {"success": False, "error": str(e)}
 
-@app.post("/predict")
-async def predict(file: UploadFile = File(...)):
-    try:
-        img = Image.open(io.BytesIO(await file.read()))
-        inputs = processor(images=img, return_tensors="pt")
-        with torch.no_grad():
-            outputs = model(**inputs)
-            label = model.config.id2label[outputs.logits.argmax(-1).item()]
-        info = food_database.get(label, {"isim": label, "kalori": 0, "birim": "-", "protein":0, "karbonhidrat":0, "yag":0})
-        return {"success": True, "prediction": label, "data": info}
-    except Exception as e: return {"success": False, "error": str(e)}
-
+# --- SU TAKİBİ ---
 @app.get("/su-durumu/{uid}")
 def get_water(uid: str):
     try:
@@ -203,6 +240,7 @@ def drink(k: SuKayit):
         return {"success": True}
     except Exception as e: return {"success": False, "error": str(e)}
 
+# --- KAYIT SİLME ---
 @app.delete("/sil/{doc_id}")
 def delete(doc_id: str):
     try:
