@@ -1,24 +1,170 @@
 {
-  "lahmacun": { "isim": "Lahmacun", "kalori": 150, "protein": 6, "karbonhidrat": 25, "yag": 5, "birim": "1 Adet" },
-  "karniyarik": { "isim": "Karnıyarık", "kalori": 270, "protein": 10, "karbonhidrat": 12, "yag": 18, "birim": "1 Adet" },
-  "manti": { "isim": "Mantı", "kalori": 350, "protein": 12, "karbonhidrat": 45, "yag": 12, "birim": "1 Porsiyon" },
-  "yaprak_sarma": { "isim": "Yaprak Sarma", "kalori": 125, "protein": 2, "karbonhidrat": 15, "yag": 6, "birim": "4 Adet" },
-  "kuru_fasulye": { "isim": "Kuru Fasulye", "kalori": 300, "protein": 15, "karbonhidrat": 30, "yag": 8, "birim": "1 Tabak" },
-  "iskender_kebap": { "isim": "İskender Kebap", "kalori": 750, "protein": 40, "karbonhidrat": 50, "yag": 45, "birim": "1 Porsiyon" },
-  "mercimek_corbasi": { "isim": "Mercimek Çorbası", "kalori": 180, "protein": 10, "karbonhidrat": 25, "yag": 5, "birim": "1 Kase" },
-  "cig_kofte": { "isim": "Çiğ Köfte", "kalori": 250, "protein": 8, "karbonhidrat": 35, "yag": 10, "birim": "1 Porsiyon" },
-  "adana_kebap": { "isim": "Adana Kebap", "kalori": 360, "protein": 20, "karbonhidrat": 10, "yag": 25, "birim": "1 Şiş" },
-  "tavuk_doner": { "isim": "Tavuk Döner", "kalori": 300, "protein": 25, "karbonhidrat": 35, "yag": 10, "birim": "1 Dürüm" },
-
-  "pizza": { "isim": "Pizza", "kalori": 300, "protein": 12, "karbonhidrat": 35, "yag": 10, "birim": "1 Dilim" },
-  "hamburger": { "isim": "Hamburger", "kalori": 550, "protein": 25, "karbonhidrat": 45, "yag": 30, "birim": "1 Adet" },
-  "sushi": { "isim": "Sushi", "kalori": 300, "protein": 10, "karbonhidrat": 50, "yag": 5, "birim": "6 Parça" },
-  "tacos": { "isim": "Taco", "kalori": 200, "protein": 10, "karbonhidrat": 20, "yag": 10, "birim": "1 Adet" },
-  "waffle": { "isim": "Waffle", "kalori": 400, "protein": 8, "karbonhidrat": 50, "yag": 18, "birim": "1 Adet" },
-  "hot_dog": { "isim": "Sosisli Sandviç", "kalori": 350, "protein": 12, "karbonhidrat": 30, "yag": 20, "birim": "1 Adet" },
-  "fried_chicken": { "isim": "Kızarmış Tavuk", "kalori": 450, "protein": 30, "karbonhidrat": 15, "yag": 25, "birim": "1 Parça" },
-  "ramen": { "isim": "Ramen", "kalori": 450, "protein": 15, "karbonhidrat": 55, "yag": 15, "birim": "1 Kase" },
-  "donuts": { "isim": "Donut", "kalori": 300, "protein": 4, "karbonhidrat": 35, "yag": 16, "birim": "1 Adet" },
-  "lasagna": { "isim": "Lazanya", "kalori": 600, "protein": 25, "karbonhidrat": 45, "yag": 35, "birim": "1 Dilim" },
-  "caesar_salad": { "isim": "Sezar Salata", "kalori": 350, "protein": 15, "karbonhidrat": 10, "yag": 28, "birim": "1 Kase" }
+  "lahmacun": {
+    "isim": "Lahmacun",
+    "kalori": 150,
+    "protein": 6,
+    "karbonhidrat": 25,
+    "yag": 5,
+    "birim": "1 Adet"
+  },
+  "karniyarik": {
+    "isim": "Karnıyarık",
+    "kalori": 350,
+    "protein": 12,
+    "karbonhidrat": 15,
+    "yag": 24,
+    "birim": "1 Adet"
+  },
+  "manti": {
+    "isim": "Mantı",
+    "kalori": 480,
+    "protein": 16,
+    "karbonhidrat": 55,
+    "yag": 18,
+    "birim": "1 Porsiyon"
+  },
+  "yaprak_sarma": {
+    "isim": "Yaprak Sarma",
+    "kalori": 125,
+    "protein": 2,
+    "karbonhidrat": 15,
+    "yag": 6,
+    "birim": "4 Adet"
+  },
+  "kuru_fasulye": {
+    "isim": "Kuru Fasulye",
+    "kalori": 320,
+    "protein": 16,
+    "karbonhidrat": 32,
+    "yag": 9,
+    "birim": "1 Tabak"
+  },
+  "iskender_kebap": {
+    "isim": "İskender Kebap",
+    "kalori": 750,
+    "protein": 40,
+    "karbonhidrat": 50,
+    "yag": 45,
+    "birim": "1 Porsiyon"
+  },
+  "mercimek_corbasi": {
+    "isim": "Mercimek Çorbası",
+    "kalori": 180,
+    "protein": 10,
+    "karbonhidrat": 25,
+    "yag": 5,
+    "birim": "1 Kase"
+  },
+  "cig_kofte": {
+    "isim": "Çiğ Köfte",
+    "kalori": 250,
+    "protein": 8,
+    "karbonhidrat": 35,
+    "yag": 10,
+    "birim": "1 Porsiyon"
+  },
+  "adana_kebap": {
+    "isim": "Adana Kebap",
+    "kalori": 420,
+    "protein": 24,
+    "karbonhidrat": 12,
+    "yag": 30,
+    "birim": "1 Şiş"
+  },
+  "tavuk_doner": {
+    "isim": "Tavuk Döner",
+    "kalori": 300,
+    "protein": 25,
+    "karbonhidrat": 35,
+    "yag": 10,
+    "birim": "1 Dürüm"
+  },
+  "pizza": {
+    "isim": "Pizza",
+    "kalori": 300,
+    "protein": 12,
+    "karbonhidrat": 35,
+    "yag": 10,
+    "birim": "1 Dilim"
+  },
+  "hamburger": {
+    "isim": "Hamburger",
+    "kalori": 550,
+    "protein": 25,
+    "karbonhidrat": 45,
+    "yag": 30,
+    "birim": "1 Adet"
+  },
+  "sushi": {
+    "isim": "Sushi",
+    "kalori": 300,
+    "protein": 10,
+    "karbonhidrat": 50,
+    "yag": 5,
+    "birim": "6 Parça"
+  },
+  "tacos": {
+    "isim": "Taco",
+    "kalori": 200,
+    "protein": 10,
+    "karbonhidrat": 20,
+    "yag": 10,
+    "birim": "1 Adet"
+  },
+  "waffle": {
+    "isim": "Waffle",
+    "kalori": 400,
+    "protein": 8,
+    "karbonhidrat": 50,
+    "yag": 18,
+    "birim": "1 Adet"
+  },
+  "hot_dog": {
+    "isim": "Sosisli Sandviç",
+    "kalori": 350,
+    "protein": 12,
+    "karbonhidrat": 30,
+    "yag": 20,
+    "birim": "1 Adet"
+  },
+  "fried_chicken": {
+    "isim": "Kızarmış Tavuk",
+    "kalori": 450,
+    "protein": 30,
+    "karbonhidrat": 15,
+    "yag": 25,
+    "birim": "1 Parça"
+  },
+  "ramen": {
+    "isim": "Ramen",
+    "kalori": 450,
+    "protein": 15,
+    "karbonhidrat": 55,
+    "yag": 15,
+    "birim": "1 Kase"
+  },
+  "donuts": {
+    "isim": "Donut",
+    "kalori": 300,
+    "protein": 4,
+    "karbonhidrat": 35,
+    "yag": 16,
+    "birim": "1 Adet"
+  },
+  "lasagna": {
+    "isim": "Lazanya",
+    "kalori": 600,
+    "protein": 25,
+    "karbonhidrat": 45,
+    "yag": 35,
+    "birim": "1 Dilim"
+  },
+  "caesar_salad": {
+    "isim": "Sezar Salata",
+    "kalori": 350,
+    "protein": 15,
+    "karbonhidrat": 10,
+    "yag": 28,
+    "birim": "1 Kase"
+  }
 }

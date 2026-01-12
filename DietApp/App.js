@@ -4,6 +4,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
+import { useTheme } from './ThemeContext';
 import { onAuthStateChanged } from 'firebase/auth';
 
 import { auth } from './firebaseConfig';
@@ -11,13 +12,14 @@ import HomeScreen from './screens/HomeScreen';
 import ProfileScreen from './screens/ProfileScreen';
 import LoginScreen from './screens/LoginScreen';
 import SignupScreen from './screens/SignupScreen';
-
-// ReportScreen kaldırıldı! 🗑️
+import ReportScreen from './screens/ReportScreen';
+import { ThemeProvider } from './ThemeContext';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
 function MainApp() {
+  const { theme } = useTheme();
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -25,15 +27,22 @@ function MainApp() {
         tabBarIcon: ({ focused, color, size }) => {
           let iconName;
           if (route.name === 'Günlük') iconName = focused ? 'restaurant' : 'restaurant-outline';
+          else if (route.name === 'Raporlar') iconName = focused ? 'stats-chart' : 'stats-chart-outline';
           else if (route.name === 'Profil') iconName = focused ? 'person' : 'person-outline';
           return <Ionicons name={iconName} size={size} color={color} />;
         },
         tabBarActiveTintColor: '#e74c3c',
         tabBarInactiveTintColor: 'gray',
-        tabBarStyle: { paddingBottom: 5, height: 60 }
+        tabBarStyle: {
+          paddingBottom: 5,
+          height: 60,
+          backgroundColor: theme.cardBg,
+          borderTopColor: theme.border
+        }
       })}
     >
       <Tab.Screen name="Günlük" component={HomeScreen} />
+      <Tab.Screen name="Raporlar" component={ReportScreen} />
       <Tab.Screen name="Profil" component={ProfileScreen} />
     </Tab.Navigator>
   );
@@ -63,8 +72,10 @@ export default function App() {
   if (loading) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator size="large" color="#e74c3c" /></View>;
 
   return (
-    <NavigationContainer>
-      {user ? <MainApp /> : <AuthStack />}
-    </NavigationContainer>
+    <ThemeProvider>
+      <NavigationContainer>
+        {user ? <MainApp /> : <AuthStack />}
+      </NavigationContainer>
+    </ThemeProvider>
   );
 }

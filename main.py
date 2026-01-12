@@ -115,11 +115,51 @@ async def predict(file: UploadFile = File(...)):
             # Veritabanında yoksa sadece ismini döndür
             info = {"isim": label.replace("_", " ").title(), "kalori": 0, "birim": "?", "protein":0, "karbonhidrat":0, "yag":0}
 
-        return {"success": True, "prediction": label, "data": info}
+        return {"success": True, "data": info}
         
     except Exception as e:
         print(f"Hata: {e}")
         return {"success": False, "error": str(e)}
+
+# --- YEMEK ARAMA ---
+@app.get("/ara-yemek")
+def ara_yemek(q: str):
+    """Yemek veritabanında arama yapar"""
+    try:
+        sonuclar = []
+        query = q.lower()
+        for yemek_id, yemek in food_database.items():
+            if query in yemek["isim"].lower():
+                sonuclar.append({
+                    "id": yemek_id,
+                    "isim": yemek["isim"],
+                    "kalori": yemek["kalori"],
+                    "protein": yemek["protein"],
+                    "karbonhidrat": yemek["karbonhidrat"],
+                    "yag": yemek["yag"],
+                    "birim": yemek["birim"]
+                })
+        return {"sonuclar": sonuclar}
+    except Exception as e:
+        return {"sonuclar": []}
+
+# --- SPOR ARAMA ---
+@app.get("/ara-spor")
+def ara_spor(q: str):
+    """Egzersiz veritabanında arama yapar"""
+    try:
+        sonuclar = []
+        query = q.lower()
+        for spor_id, spor in exercise_database.items():
+            if query in spor["isim"].lower():
+                sonuclar.append({
+                    "id": spor_id,
+                    "isim": spor["isim"],
+                    "met": spor["met"]
+                })
+        return {"sonuclar": sonuclar}
+    except Exception as e:
+        return {"sonuclar": []}
 
 # --- YEMEK KAYIT ---
 @app.post("/kaydet")
@@ -221,8 +261,9 @@ def search_exercise(terim: str):
         for k, v in exercise_database.items():
             if terim.lower() in v['isim'].lower():
                 res.append({"id": k, "isim": v["isim"], "met": v["met"]})
-        return {"success": True, "results": res}
-    except Exception as e: return {"success": False, "error": str(e)}
+        return {"success": False, "message": "Tanınmadı"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 # --- SU TAKİBİ ---
 @app.get("/su-durumu/{uid}")
@@ -247,3 +288,115 @@ def delete(doc_id: str):
         db.collection("yemek_gunlugu").document(doc_id).delete()
         return {"success": True}
     except Exception as e: return {"success": False, "error": str(e)}
+
+# --- ANALİTİK RAPORLAR ---
+@app.get("/istatistik-haftalik/{uid}")
+def get_weekly_stats(uid: str):
+    """Son 7 günün günlük kalori toplamlarını döndürür"""
+    try:
+        bugun = date.today()
+        gunler_labels = []
+        gunler_data = []
+        
+        # Son 7 gün için döngü
+        for i in range(6, -1, -1):
+            gun = bugun - timedelta(days=i)
+            start = datetime.combine(gun, datetime.min.time())
+            end = start + timedelta(days=1)
+            
+            # O günün verilerini çek
+            docs = db.collection("yemek_gunlugu").where("kullanici_id", "==", uid).where("tarih", ">=", start).where("tarih", "<", end).stream()
+            
+            gunluk_kalori = 0
+            for doc in docs:
+                veri = doc.to_dict()
+                # Sadece yemekleri say (spor değil)
+                if veri.get("tur") != "spor":
+                    gunluk_kalori += veri.get("kalori", 0)
+            
+            # Türkçe gün kısaltmaları
+            gun_isimleri = ["Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"]
+            gunler_labels.append(gun_isimleri[gun.weekday()])
+            gunler_data.append(gunluk_kalori)
+        
+        return {
+            "success": True,
+            "labels": gunler_labels,
+            "data": gunler_data
+        }
+    except Exception as e:
+        print(f"Haftalık istatistik hatası: {e}")
+        return {"success": False, "error": str(e)}
+
+@app.get("/makro-dagilim/{uid}")
+def get_macro_distribution(uid: str, tarih: str = None):
+    """Belirtilen tarih için makro dağılımını döndürür (varsayılan: bugün)"""
+    try:
+        if not tarih:
+            tarih = date.today().strftime("%Y-%m-%d")
+        
+        start = datetime.strptime(tarih, "%Y-%m-%d")
+        end = start + timedelta(days=1)
+        
+        docs = db.collection("yemek_gunlugu").where("kullanici_id", "==", uid).where("tarih", ">=", start).where("tarih", "<", end).stream()
+        
+        toplam = {"protein": 0, "karbonhidrat": 0, "yag": 0, "kalori": 0, "yakilan": 0}
+        
+        for doc in docs:
+            veri = doc.to_dict()
+            if veri.get("tur") == "spor":
+                toplam["yakilan"] += veri.get("kalori", 0)
+            else:
+                toplam["protein"] += veri.get("protein", 0)
+                toplam["karbonhidrat"] += veri.get("karbonhidrat", 0)
+                toplam["yag"] += veri.get("yag", 0)
+                toplam["kalori"] += veri.get("kalori", 0)
+        
+        return {"success": True, **toplam}
+    except Exception as e:
+        print(f"Makro dağılım hatası: {e}")
+        return {"success": False, "error": str(e)}
+
+@app.get("/hedef-ozeti/{uid}")
+def get_goal_summary(uid: str):
+    """Kullanıcının hedef kalori/makrolarını ve bugünkü gerçekleşmeyi döndürür"""
+    try:
+        # Kullanıcı bilgilerini al
+        user_doc = db.collection("users").document(uid).get()
+        if not user_doc.exists:
+            return {"success": False, "error": "Kullanıcı bulunamadı"}
+        
+        user_data = user_doc.to_dict()
+        hedef_kalori = user_data.get("tdee", 2000)  # Varsayılan 2000
+        
+        # Bugünkü makro dağılımını al
+        bugun = date.today().strftime("%Y-%m-%d")
+        makro_response = get_macro_distribution(uid, bugun)
+        
+        if not makro_response.get("success"):
+            return makro_response
+        
+        # Hedef makrolar (basit hesaplama: %30 protein, %40 karb, %30 yağ)
+        hedef_protein = int((hedef_kalori * 0.30) / 4)  # 1g protein = 4 kalori
+        hedef_karb = int((hedef_kalori * 0.40) / 4)
+        hedef_yag = int((hedef_kalori * 0.30) / 9)  # 1g yağ = 9 kalori
+        
+        return {
+            "success": True,
+            "hedef": {
+                "kalori": hedef_kalori,
+                "protein": hedef_protein,
+                "karbonhidrat": hedef_karb,
+                "yag": hedef_yag
+            },
+            "gerceklesen": {
+                "kalori": makro_response.get("kalori", 0),
+                "protein": makro_response.get("protein", 0),
+                "karbonhidrat": makro_response.get("karbonhidrat", 0),
+                "yag": makro_response.get("yag", 0),
+                "yakilan": makro_response.get("yakilan", 0)
+            }
+        }
+    except Exception as e:
+        print(f"Hedef özeti hatası: {e}")
+        return {"success": False, "error": str(e)}
